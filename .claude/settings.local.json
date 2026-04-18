@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -d /c/Users/david/.claude/skills/*/)",
+      "Bash(ls /c/Users/david/.claude/agents/*.md)",
+      "Bash(ls /c/Users/david/.claude/commands/*.md)",
+      "Bash(ls /c/Users/david/.claude/playbooks/*.md)",
+      "Bash(ls -lh /c/Users/david/.claude/skills/*/SKILL.md)",
+      "Bash(docker compose:*)",
+      "Bash(make migrate:*)",
+      "Bash(docker cp:*)",
+      "Bash(MSYS_NO_PATHCONV=1 docker compose exec backend ls //toolkit)",
+      "Bash(MSYS_NO_PATHCONV=1 docker compose exec backend python -m app.ingestion.toolkit_ingest --root //toolkit --dry-run)",
+      "Bash(MSYS_NO_PATHCONV=1 docker compose exec backend python -m app.ingestion.toolkit_ingest --root //toolkit)",
+      "Bash(docker volume:*)"
+    ]
+  }
+}

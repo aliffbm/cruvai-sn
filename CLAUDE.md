@@ -1,0 +1,154 @@
+<!-- BEGIN AI-Knowledge-Repository bootstrap -->
+> **This project uses the AI Knowledge Repository toolkit** (agents, skills, commands, playbooks at `~/.claude/`).
+>
+> **Playbook for this project**: `~/.claude/playbooks/servicenow-platform-product.md` — read it before starting non-trivial work.
+>
+> If `~/.claude/GLOBAL_MANIFEST.md` is missing on this machine, bootstrap:
+> ```bash
+> git clone https://github.com/aliffbm/AI-Knowledge-Repository.git "$HOME/AI-Knowledge-Repository"
+> bash "$HOME/AI-Knowledge-Repository/install-global.sh"
+> ```
+<!-- END AI-Knowledge-Repository bootstrap -->
+
+# Cruvai ServiceNow Developer — Enterprise AI Agent Platform
+
+## Overview
+
+Enterprise-grade web application for AI-powered ServiceNow development. Agents generate catalog items, service portals, flows, business rules, and other SN artifacts from user stories.
+
+## Quick Start
+
+```bash
+make up          # Start all Docker services (postgres, redis, backend, worker, frontend)
+make migrate     # Run Alembic migrations
+make seed        # Seed database with initial data
+```
+
+Web UI at `http://localhost:3001` | API at `http://localhost:8001`
+
+## Architecture
+
+| Layer | Tech | Port |
+|-------|------|------|
+| Frontend | Next.js 15, React 19, Tailwind CSS, Zustand | 3001 |
+| Backend | FastAPI, SQLAlchemy 2.0 async, Alembic | 8001 |
+| Worker | Celery + Redis broker | — |
+| Database | PostgreSQL 16 + pgvector | 5434 |
+| Cache | Redis 7 | 6380 |
+| MCP Server | TypeScript, @modelcontextprotocol/sdk, Zod | stdio |
+
+## Key Directories
+
+```
+backend/
+  app/
+    agents/          # Agent implementations (catalog, portal)
+      prompts/       # Markdown prompt templates (shared_context, portal_agent, etc.)
+      base_agent.py  # Base class + LangGraph state schema
+    models/          # SQLAlchemy models (15+ models)
+    services/        # Business logic (llm_gateway, prompt_service, auth_service)
+    api/v1/          # FastAPI routes
+    connectors/      # ServiceNow REST API connector
+    workers/         # Celery tasks
+  alembic/           # Database migrations
+
+frontend/
+  src/app/(dashboard)/  # Next.js pages (projects, stories, jobs, control-plane)
+  src/lib/api.ts        # API client
+
+sn-mcp-server/
+  src/tools/         # 32 MCP tools across 8 modules
+    table.ts         # CRUD (5 tools)
+    catalog.ts       # Catalog items (2 tools)
+    script.ts        # Business rules, client scripts, UI policies (5 tools)
+    schema.ts        # Schema discovery (3 tools)
+    update-set.ts    # Update set management (3 tools)
+    portal.ts        # Portal, pages, widgets, themes (7 tools)
+    widget.ts        # Widget-specific operations (4 tools)
+    csm.ts           # CSM cases, orders, connection test (3 tools)
+
+knowledge-base/
+  docs/              # Channel routing, CSM architecture, Figma workflows
+  patterns/          # SP layout hierarchy, widget code patterns, deployment guide
+  autocomplete/      # ServiceNow API type definitions (server.d.ts, client.d.ts)
+  grapesjs/          # Content Publishing component reference
+```
+
+## Data Models
+
+### Core
+- `Organization`, `User`, `Role` — Multi-tenant auth with JWT
+- `Project` — Workspace linking stories + artifacts to an SN instance
+- `UserStory` — Kanban items with status tracking (backlog → done)
+- `ServiceNowInstance`, `InstanceCredential` — SN connection with encrypted creds
+
+### AI Control Plane
+- `AgentPrompt` — Jinja2 prompt templates with per-org isolation
+- `AgentPromptVersion` — Immutable prompt snapshots (SHA-256 hashed)
+- `AgentPromptLabel` — Deployment labels (production/staging/canary) with A/B weights
+- `AiModelConfig` — LLM registration with cost tracking + capabilities
+- `AiRoutingRule` — Priority-based model selection rules
+- `AiRequestLog` — Every LLM call logged (tokens, cost, latency)
+- `AiMonthlySpend` — Aggregated spend per org/provider/model
+- `AgentMemory` — Semantic memory with pgvector embeddings
+
+### Connectors
+- `Connector` — External system connection with Fernet-encrypted credentials
+- `ConnectorAction` — HTTP operation a connector can perform (method, path, schemas)
+- Auth adapters: `bearer_token`, `api_key`, `basic_auth`, `oauth2`, `none` (pluggable via registry)
+- OOB platforms: anthropic, openai, servicenow, figma, slack, github
+- API: `/connectors` — CRUD, credential management, verification, action execution
+
+### Agents & Jobs
+- `AgentDefinition` — Agent metadata (type, model, approval requirements)
+- `AgentJob`, `JobStep`, `JobLog` — Execution tracking with SSE log streaming
+- `Artifact`, `ArtifactVersion` — Generated SN artifact metadata + snapshots
+- `AgentSkill`, `AgentSkillStep` — Reusable skill definitions with step chains
+
+## LLM Gateway
+
+All LLM calls flow through `backend/app/services/llm_gateway.py`:
+
+```
+gateway.complete_sync(db, org_id, prompt_slug, variables)
+  → Prompt resolution (PromptService: slug → version via label)
+  → Jinja2 template rendering
+  → Model routing (AiRoutingRule evaluation)
+  → Provider dispatch (Anthropic / OpenAI)
+  → Cost calculation + request logging
+  → Monthly spend tracking
+```
+
+## Agent System
+
+**Hybrid engine**: Simple agents use direct LLM calls. Complex agents use LangGraph StateGraph.
+
+- **Catalog Agent** (`catalog_agent.py`) — Builds catalog items, variables, business rules, client scripts
+- **Portal Agent** (`portal_agent.py`) — Builds complete portals with themes, pages, widgets, layout hierarchy
+
+Agent state schema (for LangGraph agents) in `base_agent.py`:
+- Phases: `research` → `planning` → `execution` → `reflection`
+- Carries: messages, goal, tasks, artifacts, OOB assets, memory context, approvals
+
+## Adding New Agent Types
+
+1. Create `backend/app/agents/{type}_agent.py`
+2. Add prompt files in `backend/app/agents/prompts/`
+3. Register in seed data (`AgentDefinition`)
+4. Wire into `backend/app/workers/agent_tasks.py`
+
+## Adding New MCP Tools
+
+1. Create or edit a tool file in `sn-mcp-server/src/tools/`
+2. Follow the pattern: export function taking `client`, return object with `description`, `inputSchema` (Zod), `handler`
+3. Import and spread in `sn-mcp-server/src/index.ts`
+
+## Common Commands
+
+```bash
+make logs-backend    # View backend + worker logs
+make test            # Run pytest
+make migration msg="description"  # Generate Alembic migration
+make dev-frontend    # Run Next.js dev server locally
+make dev-backend     # Run Uvicorn locally
+```

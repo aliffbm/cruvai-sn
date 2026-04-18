@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceNow GrapesJS Component Type Reference</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e0e0e8;
+    --muted: #8888a0;
+    --accent: #6c8cff;
+    --accent2: #44c8a8;
+    --accent3: #ff8c6c;
+    --accent4: #c86cff;
+    --tag: #2a3a50;
+    --tag-text: #88bbff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px 40px; }
+  h1 { font-size: 28px; margin-bottom: 4px; color: #fff; }
+  .subtitle { color: var(--muted); margin-bottom: 30px; font-size: 14px; }
+  .subtitle span { background: var(--tag); color: var(--tag-text); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; }
+  h2 { font-size: 20px; margin: 30px 0 16px 0; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h2 .count { font-size: 13px; color: var(--muted); font-weight: normal; margin-left: 8px; }
+
+  .category-desc { color: var(--muted); font-size: 13px; margin: -10px 0 16px 0; }
+
+  /* Component cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; transition: border-color 0.2s; }
+  .card:hover { border-color: var(--accent); }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .type-name { font-size: 16px; font-weight: 700; color: #fff; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; }
+  .display-name { font-size: 13px; color: var(--muted); }
+  .tag-badge { display: inline-block; background: var(--tag); color: var(--tag-text); padding: 1px 7px; border-radius: 4px; font-size: 11px; font-family: monospace; }
+  .tag-badge.html { background: #2a4030; color: #88ddaa; }
+
+  .props-grid { display: grid; grid-template-columns: 90px 1fr; gap: 4px 12px; font-size: 12px; margin-top: 8px; }
+  .prop-label { color: var(--muted); font-weight: 600; text-align: right; }
+  .prop-value { color: var(--text); font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 11px; word-break: break-all; }
+  .prop-value.yes { color: var(--accent2); }
+  .prop-value.no { color: var(--accent3); }
+  .prop-value.restricted { color: var(--accent4); }
+
+  .stylable-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .stylable-tag { background: #1a2a35; color: #77bbcc; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-family: monospace; }
+  .stylable-tag.custom { background: #352a1a; color: #ccbb77; }
+
+  .traits-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .trait-tag { background: #2a1a35; color: #bb88dd; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-family: monospace; }
+
+  /* Hierarchy diagrams */
+  .hierarchy { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 16px 0; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.8; white-space: pre; overflow-x: auto; }
+  .hierarchy .type { color: var(--accent); font-weight: 700; }
+  .hierarchy .tag { color: var(--accent2); }
+  .hierarchy .cls { color: var(--accent3); }
+  .hierarchy .note { color: var(--muted); font-style: italic; }
+
+  /* JSON examples */
+  .json-block { background: #111318; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; overflow-x: auto; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 12px; line-height: 1.6; }
+  .json-block .key { color: #88bbff; }
+  .json-block .str { color: #88ddaa; }
+  .json-block .note { color: #666; }
+
+  /* Info boxes */
+  .info-box { background: #1a2535; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 16px 0; font-size: 13px; }
+  .info-box.warning { background: #352a1a; border-color: var(--accent3); }
+  .info-box strong { color: #fff; }
+
+  /* Nav */
+  nav { position: sticky; top: 0; background: var(--bg); padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; z-index: 10; display: flex; flex-wrap: wrap; gap: 8px; }
+  nav a { color: var(--accent); text-decoration: none; font-size: 13px; padding: 4px 10px; border-radius: 4px; background: var(--card); border: 1px solid var(--border); }
+  nav a:hover { border-color: var(--accent); background: #1a2535; }
+
+  /* Footer */
+  footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>ServiceNow GrapesJS Component Type Reference</h1>
+<p class="subtitle">Content Publishing Web Builder &mdash; 47 registered component types <span>GrapesJS v0.21.12</span></p>
+
+<nav>
+  <a href="#layout">Layout</a>
+  <a href="#tabs">Tabs</a>
+  <a href="#accordions">Accordions</a>
+  <a href="#tables">Tables</a>
+  <a href="#lists">Lists</a>
+  <a href="#content">Content</a>
+  <a href="#core">Core GrapesJS</a>
+  <a href="#hierarchies">Hierarchy Diagrams</a>
+  <a href="#json-examples">JSON Examples</a>
+  <a href="#css-metadata">CSS Metadata</a>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="layout">Layout Types <span class="count">(3 types)</span></h2>
+<p class="category-desc">Structural containers for arranging content in rows and columns.</p>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-row</span>
+      <span class="display-name">Row</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-row</span>
+      <span class="prop-label">Draggable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-cell only</span>
+      <span class="prop-label">Traits</span><span class="prop-value">id, title</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-cell</span>
+      <span class="display-name">Cell</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-cell</span>
+      <span class="prop-label">Draggable</span><span class="prop-value restricted">into .wb-row only</span>
+      <span class="prop-label">Droppable</span><span class="prop-value yes">true (any child)</span>
+      <span class="prop-label">Traits</span><span class="prop-value">id, title</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">flex-basis</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">text-sect</span>
+      <span class="display-name">Section</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">bdg-sect</span>
+      <span class="prop-label">Draggable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Droppable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Traits</span><span class="prop-value">id</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="tabs">Tab Types <span class="count">(6 types)</span></h2>
+<p class="category-desc">Tabbed content interface. The <code>type</code> property is <strong>critical</strong> &mdash; tabs render as text boxes without it.</p>
+
+<div class="info-box warning">
+  <strong>Critical:</strong> Every tab sub-element MUST have its <code>type</code> set explicitly. Using only CSS classes will cause tabs to render as editable text boxes instead of functional tabs.
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-tab-container</span>
+      <span class="display-name">Tab Container</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-tab-container</span>
+      <span class="prop-label">Draggable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-tab-list, wb-tab-contents</span>
+      <span class="prop-label">Traits</span><span class="prop-value">addItem</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-tab-list</span>
+      <span class="display-name">Tab List</span>
+      <span class="tag-badge html">&lt;ul&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-tab-list nav nav-tabs</span>
+      <span class="prop-label">Role</span><span class="prop-value">tablist</span>
+      <span class="prop-label">Draggable</span><span class="prop-value restricted">into wb-tab-container</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-tab only</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-tab</span>
+      <span class="display-name">Tab</span>
+      <span class="tag-badge html">&lt;li&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-tab</span>
+      <span class="prop-label">Role</span><span class="prop-value">tab</span>
+      <span class="prop-label">Draggable</span><span class="prop-value restricted">into wb-tab-list</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-tab-title only</span>
+      <span class="prop-label">Traits</span><span class="prop-value">title</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">font-family</span>
+      <span class="stylable-tag">font-size</span>
+      <span class="stylable-tag">font-weight</span>
+      <span class="stylable-tag">line-height</span>
+      <span class="stylable-tag">letter-spacing</span>
+      <span class="stylable-tag">text-align</span>
+      <span class="stylable-tag">color</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-tab-title</span>
+      <span class="display-name">Tab Title</span>
+      <span class="tag-badge html">&lt;span&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-tab-title</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Editable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Traits</span><span class="prop-value">title</span>
+      <span class="prop-label">Stylable</span><span class="prop-value muted">none</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-tab-contents</span>
+      <span class="display-name">Tab Contents</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-tab-contents</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Stylable</span><span class="prop-value muted">none</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-tab-content</span>
+      <span class="display-name">Tab Content</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-tab-content</span>
+      <span class="prop-label">Role</span><span class="prop-value">tabpanel</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Traits</span><span class="prop-value">title</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="accordions">Accordion Types <span class="count">(8 types)</span></h2>
+<p class="category-desc">Collapsible content panels with configurable toggle styles.</p>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordions</span>
+      <span class="display-name">Accordions</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordions first-panel multiple-panel toggle-right</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-accordion only</span>
+    </div>
+    <div class="traits-list">
+      <span class="trait-tag">firstPanel</span>
+      <span class="trait-tag">multiplePanel</span>
+      <span class="trait-tag">toggleStyle</span>
+      <span class="trait-tag">toggleSize</span>
+      <span class="trait-tag">togglePlacement</span>
+      <span class="trait-tag">toggleColor</span>
+      <span class="trait-tag">addItem</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion</span>
+      <span class="display-name">Accordion</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion</span>
+      <span class="prop-label">Draggable</span><span class="prop-value restricted">into wb-accordions</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-accordion-header-container, wb-accordion-content</span>
+      <span class="prop-label">Stylable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion-header-container</span>
+      <span class="display-name">Header Container</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion-header-container</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion-header-content</span>
+      <span class="display-name">Header Content</span>
+      <span class="tag-badge html">&lt;button&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion-header-content</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion-header</span>
+      <span class="display-name">Accordion Header</span>
+      <span class="tag-badge html">&lt;h3&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion-header</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion-title</span>
+      <span class="display-name">Accordion Title</span>
+      <span class="tag-badge html">&lt;span&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion-title</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Editable</span><span class="prop-value yes">true</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion-toggle</span>
+      <span class="display-name">Accordion Toggle</span>
+      <span class="tag-badge html">&lt;button&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion-toggle fa fa-chevron-down</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-accordion-content</span>
+      <span class="display-name">Accordion Content</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-accordion-content</span>
+      <span class="prop-label">Role</span><span class="prop-value">region</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="tables">Table Types <span class="count">(4 types)</span></h2>
+<p class="category-desc">HTML table components with header support.</p>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-Table</span>
+      <span class="display-name">Table</span>
+      <span class="tag-badge html">&lt;table&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-table</span>
+      <span class="prop-label">Draggable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Droppable</span><span class="prop-value yes">true</span>
+    </div>
+    <div class="traits-list">
+      <span class="trait-tag">hasHeaders</span>
+      <span class="trait-tag">reset</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-TableRow</span>
+      <span class="display-name">Table Row</span>
+      <span class="tag-badge html">&lt;tr&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-table-row</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Droppable</span><span class="prop-value restricted">wb-TableCell, wb-TableHeaderCell</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">text-align</span>
+      <span class="stylable-tag">height</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-TableCell</span>
+      <span class="display-name">Table Cell</span>
+      <span class="tag-badge html">&lt;td&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Copyable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">text-align</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-TableHeaderCell</span>
+      <span class="display-name">Table Header</span>
+      <span class="tag-badge html">&lt;th&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-header-cell</span>
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Removable</span><span class="prop-value no">false</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">text-align</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="lists">List Types <span class="count">(2 types)</span></h2>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-list</span>
+      <span class="display-name">List</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-list text-base</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-list-item</span>
+      <span class="display-name">List Item</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Draggable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="content">Content Types <span class="count">(6 types)</span></h2>
+<p class="category-desc">Text, images, buttons, links, and dividers for building actual page content.</p>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">text</span>
+      <span class="display-name">Text</span>
+      <span class="tag-badge html">&lt;p&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-text</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Editable</span><span class="prop-value yes">true (inline)</span>
+    </div>
+    <div class="info-box" style="margin-top:8px;padding:8px 12px;font-size:11px;">
+      Use <code>tagName</code> to override: h1, h2, h3, h4, h5, h6, span, p, blockquote
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag custom">wb-select-text-style</span>
+      <span class="stylable-tag custom">wb-select-text-color</span>
+      <span class="stylable-tag">display</span>
+      <span class="stylable-tag">text-align</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">font-family</span>
+      <span class="stylable-tag">font-size</span>
+      <span class="stylable-tag">font-weight</span>
+      <span class="stylable-tag">line-height</span>
+      <span class="stylable-tag">letter-spacing</span>
+      <span class="stylable-tag">color</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">textnode</span>
+      <span class="display-name">Text Node</span>
+      <span class="tag-badge html">text</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+      <span class="prop-label">Editable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Stylable</span><span class="prop-value muted">none</span>
+    </div>
+    <div class="info-box" style="margin-top:8px;padding:8px 12px;font-size:11px;">
+      Leaf node &mdash; use <code>"content"</code> property for text value. Always the innermost child.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">image</span>
+      <span class="display-name">Image</span>
+      <span class="tag-badge html">&lt;img&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Draggable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Droppable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Editable</span><span class="prop-value yes">true (double-click)</span>
+      <span class="prop-label">Traits</span><span class="prop-value">alt</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">display</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag custom">wb-horizontal-align</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">button</span>
+      <span class="display-name">Button / Link</span>
+      <span class="tag-badge html">&lt;a&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">btn btn-primary</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+    </div>
+    <div class="traits-list">
+      <span class="trait-tag">buttonTraitText</span>
+      <span class="trait-tag">title</span>
+      <span class="trait-tag">href</span>
+      <span class="trait-tag">target</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag custom">wb-select-button-type</span>
+      <span class="stylable-tag custom">wb-select-button-size</span>
+      <span class="stylable-tag custom">wb-horizontal-align</span>
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">font-family</span>
+      <span class="stylable-tag">font-size</span>
+      <span class="stylable-tag">font-weight</span>
+      <span class="stylable-tag">line-height</span>
+      <span class="stylable-tag">letter-spacing</span>
+      <span class="stylable-tag">text-align</span>
+      <span class="stylable-tag">color</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">wb-link-block</span>
+      <span class="display-name">Link Block</span>
+      <span class="tag-badge html">&lt;a&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Draggable</span><span class="prop-value yes">true</span>
+      <span class="prop-label">Droppable</span><span class="prop-value yes">true (wraps content)</span>
+    </div>
+    <div class="traits-list">
+      <span class="trait-tag">title</span>
+      <span class="trait-tag">href</span>
+      <span class="trait-tag">target</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">border</span>
+      <span class="stylable-tag">border-radius</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">padding</span>
+      <span class="stylable-tag">margin</span>
+      <span class="stylable-tag custom">wb-horizontal-align</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="type-name">divider</span>
+      <span class="display-name">Divider</span>
+      <span class="tag-badge html">&lt;div&gt;</span>
+    </div>
+    <div class="props-grid">
+      <span class="prop-label">Class</span><span class="prop-value">wb-divider</span>
+      <span class="prop-label">Droppable</span><span class="prop-value no">false</span>
+    </div>
+    <div class="stylable-list">
+      <span class="stylable-tag">background</span>
+      <span class="stylable-tag">width</span>
+      <span class="stylable-tag">height</span>
+      <span class="stylable-tag">margin</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<h2 id="core">Core GrapesJS Types <span class="count">(18 types)</span></h2>
+<p class="category-desc">Built-in GrapesJS types. Most are not commonly used in ServiceNow block definitions.</p>
+
+<div class="grid">
+  <div class="card"><div class="card-header"><span class="type-name">default</span><span class="tag-badge html">&lt;div&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">wrapper</span><span class="tag-badge html">&lt;body&gt;</span></div><div class="props-grid"><span class="prop-label">Drag</span><span class="prop-value no">false</span><span class="prop-label">Copy/Rm</span><span class="prop-value no">false / false</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">head</span><span class="tag-badge html">&lt;head&gt;</span></div><div class="props-grid"><span class="prop-label">Drag</span><span class="prop-value no">false</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">cell</span><span class="tag-badge html">&lt;td&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">row</span><span class="tag-badge html">&lt;tr&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">table</span><span class="tag-badge html">&lt;table&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">thead</span><span class="tag-badge html">&lt;thead&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value no">false / false</span><span class="prop-label">Removable</span><span class="prop-value no">false</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">tbody</span><span class="tag-badge html">&lt;tbody&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value no">false / false</span><span class="prop-label">Removable</span><span class="prop-value no">false</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">tfoot</span><span class="tag-badge html">&lt;tfoot&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">map</span><span class="tag-badge html">&lt;iframe&gt;</span></div><div class="props-grid"><span class="prop-label">Editable</span><span class="prop-value yes">true</span></div><div class="traits-list"><span class="trait-tag">address</span><span class="trait-tag">mapType</span><span class="trait-tag">zoom</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">link</span><span class="tag-badge html">&lt;a&gt;</span></div><div class="props-grid"><span class="prop-label">Editable</span><span class="prop-value yes">true</span></div><div class="traits-list"><span class="trait-tag">title</span><span class="trait-tag">href</span><span class="trait-tag">target</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">label</span><span class="tag-badge html">&lt;label&gt;</span></div><div class="props-grid"><span class="prop-label">Editable</span><span class="prop-value yes">true</span></div><div class="traits-list"><span class="trait-tag">for</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">video</span><span class="tag-badge html">&lt;video&gt;</span></div><div class="props-grid"><span class="prop-label">Editable</span><span class="prop-value yes">true</span></div><div class="traits-list"><span class="trait-tag">alt</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">script</span><span class="tag-badge html">&lt;script&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value no">false / false</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">svg</span><span class="tag-badge html">&lt;svg&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">svg-in</span><span class="tag-badge html">&lt;svg&gt;</span></div><div class="props-grid"><span class="prop-label">D/R</span><span class="prop-value yes">true / true</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">iframe</span><span class="tag-badge html">&lt;iframe&gt;</span></div><div class="props-grid"><span class="prop-label">Drop</span><span class="prop-value no">false</span></div><div class="traits-list"><span class="trait-tag">src</span></div></div>
+  <div class="card"><div class="card-header"><span class="type-name">comment</span><span class="tag-badge html">&lt;div&gt;</span></div><div class="props-grid"><span class="prop-label">Editable</span><span class="prop-value yes">true</span></div></div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="hierarchies">Component Hierarchy Diagrams</h2>
+<p class="category-desc">Required parent/child relationships for each component family.</p>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Tab Hierarchy</h3>
+<div class="hierarchy"><span class="type">wb-tab-container</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-tab-container</span>
+  ├── <span class="type">wb-tab-list</span> <span class="tag">&lt;ul&gt;</span> <span class="cls">.wb-tab-list .nav .nav-tabs</span> <span class="note">role="tablist"</span>
+  │   ├── <span class="type">wb-tab</span> <span class="tag">&lt;li&gt;</span> <span class="cls">.wb-tab</span> <span class="note">role="tab"</span>
+  │   │   └── <span class="type">wb-tab-title</span> <span class="tag">&lt;span&gt;</span> <span class="cls">.wb-tab-title</span> <span class="note">editable</span>
+  │   │       └── <span class="type">textnode</span> <span class="note">"Tab Name"</span>
+  │   └── <span class="type">wb-tab</span> <span class="note">... repeat for each tab</span>
+  └── <span class="type">wb-tab-contents</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-tab-contents</span>
+      ├── <span class="type">wb-tab-content</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-tab-content</span> <span class="note">role="tabpanel"</span>
+      │   └── <span class="note">... any content ...</span>
+      └── <span class="type">wb-tab-content</span> <span class="note">... one per tab</span></div>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Accordion Hierarchy</h3>
+<div class="hierarchy"><span class="type">wb-accordions</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-accordions</span>
+  └── <span class="type">wb-accordion</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-accordion</span>
+      ├── <span class="type">wb-accordion-header-container</span> <span class="tag">&lt;div&gt;</span>
+      │   └── <span class="type">wb-accordion-header-content</span> <span class="tag">&lt;button&gt;</span>
+      │       ├── <span class="type">wb-accordion-toggle</span> <span class="tag">&lt;button&gt;</span> <span class="cls">.fa .fa-chevron-down</span>
+      │       └── <span class="type">wb-accordion-header</span> <span class="tag">&lt;h3&gt;</span>
+      │           └── <span class="type">wb-accordion-title</span> <span class="tag">&lt;span&gt;</span> <span class="note">editable</span>
+      └── <span class="type">wb-accordion-content</span> <span class="tag">&lt;div&gt;</span> <span class="note">role="region"</span>
+          └── <span class="note">... any content ...</span></div>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Layout Hierarchy</h3>
+<div class="hierarchy"><span class="type">wb-row</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-row</span> <span class="note">flex row container</span>
+  ├── <span class="type">wb-cell</span> <span class="tag">&lt;div&gt;</span> <span class="cls">.wb-cell</span> <span class="note">flex cell</span>
+  │   └── <span class="note">... any content (text, image, button, nested wb-row, etc.)</span>
+  ├── <span class="type">wb-cell</span> <span class="note">... repeat</span>
+  └── <span class="type">wb-cell</span> <span class="note">... repeat</span></div>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Table Hierarchy</h3>
+<div class="hierarchy"><span class="type">wb-Table</span> <span class="tag">&lt;table&gt;</span> <span class="cls">.wb-table</span>
+  └── <span class="type">wb-TableRow</span> <span class="tag">&lt;tr&gt;</span> <span class="cls">.wb-table-row</span>
+      ├── <span class="type">wb-TableHeaderCell</span> <span class="tag">&lt;th&gt;</span> <span class="cls">.wb-header-cell</span>
+      └── <span class="type">wb-TableCell</span> <span class="tag">&lt;td&gt;</span>
+          └── <span class="note">... any content ...</span></div>
+
+<!-- ============================================================ -->
+<h2 id="json-examples">JSON Block Definition Examples</h2>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Minimal Text Block</h3>
+<div class="json-block"><span class="note">// A simple heading + paragraph</span>
+{
+  <span class="key">"components"</span>: [
+    {
+      <span class="key">"type"</span>: <span class="str">"wb-cell"</span>,
+      <span class="key">"classes"</span>: [<span class="str">"wb-cell"</span>],
+      <span class="key">"components"</span>: [
+        {
+          <span class="key">"tagName"</span>: <span class="str">"h1"</span>,
+          <span class="key">"type"</span>: <span class="str">"text"</span>,
+          <span class="key">"style"</span>: { <span class="key">"wb-select-text-style"</span>: <span class="str">"headline1"</span> },
+          <span class="key">"components"</span>: [{ <span class="key">"type"</span>: <span class="str">"textnode"</span>, <span class="key">"content"</span>: <span class="str">"Heading"</span> }]
+        },
+        {
+          <span class="key">"tagName"</span>: <span class="str">"p"</span>,
+          <span class="key">"type"</span>: <span class="str">"text"</span>,
+          <span class="key">"components"</span>: [{ <span class="key">"type"</span>: <span class="str">"textnode"</span>, <span class="key">"content"</span>: <span class="str">"Paragraph text here."</span> }]
+        }
+      ]
+    }
+  ],
+  <span class="key">"styles"</span>: <span class="str">""</span>
+}</div>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Image Card Row</h3>
+<div class="json-block"><span class="note">// Row of 3 image cards</span>
+{
+  <span class="key">"type"</span>: <span class="str">"wb-row"</span>,
+  <span class="key">"classes"</span>: [<span class="str">"wb-row"</span>],
+  <span class="key">"components"</span>: [
+    {
+      <span class="key">"type"</span>: <span class="str">"wb-cell"</span>,
+      <span class="key">"classes"</span>: [<span class="str">"wb-cell"</span>],
+      <span class="key">"style"</span>: { <span class="key">"flex-basis"</span>: <span class="str">"345px"</span>, <span class="key">"padding"</span>: <span class="str">"10px"</span> },
+      <span class="key">"components"</span>: [
+        {
+          <span class="key">"type"</span>: <span class="str">"image"</span>,
+          <span class="key">"tagName"</span>: <span class="str">"img"</span>,
+          <span class="key">"style"</span>: { <span class="key">"width"</span>: <span class="str">"100%"</span>, <span class="key">"height"</span>: <span class="str">"200px"</span>, <span class="key">"border-radius"</span>: <span class="str">"8px"</span> },
+          <span class="key">"attributes"</span>: { <span class="key">"src"</span>: <span class="str">""</span> }
+        },
+        {
+          <span class="key">"tagName"</span>: <span class="str">"h3"</span>,
+          <span class="key">"type"</span>: <span class="str">"text"</span>,
+          <span class="key">"style"</span>: { <span class="key">"wb-select-text-style"</span>: <span class="str">"headline3"</span> },
+          <span class="key">"components"</span>: [{ <span class="key">"type"</span>: <span class="str">"textnode"</span>, <span class="key">"content"</span>: <span class="str">"Card Title"</span> }]
+        },
+        {
+          <span class="key">"tagName"</span>: <span class="str">"p"</span>,
+          <span class="key">"type"</span>: <span class="str">"text"</span>,
+          <span class="key">"components"</span>: [{ <span class="key">"type"</span>: <span class="str">"textnode"</span>, <span class="key">"content"</span>: <span class="str">"Description text."</span> }]
+        }
+      ]
+    }
+    <span class="note">// ... repeat wb-cell for each card</span>
+  ]
+}</div>
+
+<h3 style="color:var(--accent2);font-size:16px;margin:20px 0 8px 0;">Button</h3>
+<div class="json-block">{
+  <span class="key">"type"</span>: <span class="str">"button"</span>,
+  <span class="key">"tagName"</span>: <span class="str">"a"</span>,
+  <span class="key">"classes"</span>: [<span class="str">"btn"</span>, <span class="str">"btn-primary"</span>],
+  <span class="key">"style"</span>: {
+    <span class="key">"wb-select-button-type"</span>: <span class="str">"sel-btn-primary"</span>,
+    <span class="key">"wb-select-button-size"</span>: <span class="str">"sel-btn-medium"</span>
+  },
+  <span class="key">"attributes"</span>: { <span class="key">"href"</span>: <span class="str">"#"</span>, <span class="key">"target"</span>: <span class="str">"_blank"</span> },
+  <span class="key">"components"</span>: [{ <span class="key">"type"</span>: <span class="str">"textnode"</span>, <span class="key">"content"</span>: <span class="str">"Click Me"</span> }]
+}</div>
+
+<!-- ============================================================ -->
+<h2 id="css-metadata">ServiceNow CSS Metadata Properties</h2>
+<p class="category-desc">Custom CSS properties used by the editor to track UI dropdown selections. Include these in component <code>style</code> objects.</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-header"><span class="type-name" style="color:var(--accent3)">wb-select-text-style</span></div>
+    <div class="props-grid">
+      <span class="prop-label">Used on</span><span class="prop-value">text type</span>
+      <span class="prop-label">Values</span><span class="prop-value">headline1, headline2, headline3, headline4, headline5, headline6, undefined</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="type-name" style="color:var(--accent3)">wb-select-text-color</span></div>
+    <div class="props-grid">
+      <span class="prop-label">Used on</span><span class="prop-value">text type</span>
+      <span class="prop-label">Values</span><span class="prop-value">sel-txt-primary, undefined</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="type-name" style="color:var(--accent3)">wb-select-button-type</span></div>
+    <div class="props-grid">
+      <span class="prop-label">Used on</span><span class="prop-value">button type</span>
+      <span class="prop-label">Values</span><span class="prop-value">sel-btn-primary, sel-btn-secondary, sel-btn-tertiary, sel-btn-destructive</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="type-name" style="color:var(--accent3)">wb-select-button-size</span></div>
+    <div class="props-grid">
+      <span class="prop-label">Used on</span><span class="prop-value">button type</span>
+      <span class="prop-label">Values</span><span class="prop-value">sel-btn-small, sel-btn-medium, sel-btn-large, undefined</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="type-name" style="color:var(--accent3)">wb-horizontal-align</span></div>
+    <div class="props-grid">
+      <span class="prop-label">Used on</span><span class="prop-value">button, image, wb-link-block</span>
+      <span class="prop-label">Purpose</span><span class="prop-value">Horizontal alignment of the element</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Extracted from ServiceNow dev219386 &mdash; GrapesJS v0.21.12 &mdash; 47 registered component types</p>
+  <p>Generated 2026-02-27</p>
+</footer>
+
+</body>
+</html>
