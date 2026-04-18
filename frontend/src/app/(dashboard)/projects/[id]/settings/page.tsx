@@ -28,6 +28,14 @@ interface Playbook {
   description: string | null;
 }
 
+interface SnInstance {
+  id: string;
+  name: string;
+  instance_url: string;
+  health_status: string;
+  is_active: boolean;
+}
+
 async function authedFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = api.getToken();
   const res = await fetch(`/api/v1${path}`, {
@@ -48,6 +56,7 @@ export default function ProjectSettingsPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [connectors, setConnectors] = useState<Connector[]>([]);
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
+  const [instances, setInstances] = useState<SnInstance[]>([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +66,7 @@ export default function ProjectSettingsPage() {
     authedFetch<Project>(`/projects/${projectId}`).then(setProject).catch((e) => setError(String(e)));
     authedFetch<Connector[]>("/connectors").then(setConnectors).catch(() => {});
     authedFetch<Playbook[]>("/playbooks").then(setPlaybooks).catch(() => {});
+    authedFetch<SnInstance[]>("/instances").then(setInstances).catch(() => {});
   }, [projectId]);
 
   const figmaConnectors = connectors.filter((c) => c.platform === "figma");
@@ -70,6 +80,7 @@ export default function ProjectSettingsPage() {
       const updated = await authedFetch<Project>(`/projects/${project.id}`, {
         method: "PATCH",
         body: JSON.stringify({
+          instance_id: project.instance_id,
           figma_connector_id: project.figma_connector_id,
           playbook_slug: project.playbook_slug,
         }),
@@ -102,6 +113,39 @@ export default function ProjectSettingsPage() {
           {message}
         </div>
       )}
+
+      <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 space-y-3">
+        <h2 className="font-medium">ServiceNow Instance</h2>
+        <p className="text-sm text-[var(--muted-foreground)]">
+          The target instance where agents will read OOB records and create
+          artifacts. Required before any agent (including the AI Agent
+          Analyzer) can be dispatched.
+        </p>
+        <label className="block text-xs text-[var(--muted-foreground)]">Instance</label>
+        <select
+          value={project.instance_id ?? ""}
+          onChange={(e) =>
+            setProject({ ...project, instance_id: e.target.value || null })
+          }
+          className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-sm"
+        >
+          <option value="">— none —</option>
+          {instances.map((i) => (
+            <option key={i.id} value={i.id}>
+              {i.name} — {i.instance_url} ({i.health_status})
+            </option>
+          ))}
+        </select>
+        {instances.length === 0 && (
+          <p className="text-xs text-amber-400">
+            No ServiceNow instances configured.{" "}
+            <a href="/instances" className="underline">
+              Create one
+            </a>{" "}
+            first.
+          </p>
+        )}
+      </section>
 
       <section className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 space-y-3">
         <h2 className="font-medium">Figma</h2>

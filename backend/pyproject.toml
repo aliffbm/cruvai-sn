@@ -41,6 +41,8 @@ dependencies = [
     "python-frontmatter>=1.1.0",
     "markdown-it-py>=3.0.0",
     "minio>=7.2.0",
+    # Templating (used by PromptService + GuidanceService)
+    "jinja2>=3.1.0",
 ]
 
 [project.optional-dependencies]
